@@ -1,0 +1,270 @@
+// Types de la base de données Supabase — projet AGPE.
+//
+// ⚠️ Ce fichier est normalement GÉNÉRÉ automatiquement. Après toute modification
+// du schéma, le régénérer (cf. CODING_GUIDELINES §1 et SETUP_CHECKLIST §5) :
+//
+//   pnpm supabase gen types typescript --project-id <project-id> \
+//     > shared/types/supabase.ts
+//
+// La version ci-dessous est une définition manuelle fidèle aux migrations
+// 0001 → 0007, fournie pour permettre un build typé tant que la génération CLI
+// n'a pas été exécutée contre le projet réel.
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      agpe_users_profile: {
+        Row: {
+          id: string
+          user_id: string
+          first_name: string | null
+          last_name: string | null
+          phone: string | null
+          child_class: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          first_name?: string | null
+          last_name?: string | null
+          phone?: string | null
+          child_class?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          first_name?: string | null
+          last_name?: string | null
+          phone?: string | null
+          child_class?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      kermesse_events: {
+        Row: {
+          id: string
+          name: string
+          date: string
+          location: string | null
+          description: string | null
+          start_time: string | null
+          end_time: string | null
+          is_active: boolean
+          created_by: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          date: string
+          location?: string | null
+          description?: string | null
+          start_time?: string | null
+          end_time?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          date?: string
+          location?: string | null
+          description?: string | null
+          start_time?: string | null
+          end_time?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      kermesse_stands: {
+        Row: {
+          id: string
+          event_id: string
+          name: string
+          description: string | null
+          location_detail: string | null
+          emoji: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          name: string
+          description?: string | null
+          location_detail?: string | null
+          emoji?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          name?: string
+          description?: string | null
+          location_detail?: string | null
+          emoji?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'kermesse_stands_event_id_fkey'
+            columns: ['event_id']
+            referencedRelation: 'kermesse_events'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      kermesse_slots: {
+        Row: {
+          id: string
+          stand_id: string
+          start_time: string
+          end_time: string
+          max_volunteers: number
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          stand_id: string
+          start_time: string
+          end_time: string
+          max_volunteers?: number
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          stand_id?: string
+          start_time?: string
+          end_time?: string
+          max_volunteers?: number
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'kermesse_slots_stand_id_fkey'
+            columns: ['stand_id']
+            referencedRelation: 'kermesse_stands'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      kermesse_signups: {
+        Row: {
+          id: string
+          slot_id: string
+          user_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          slot_id: string
+          user_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          slot_id?: string
+          user_id?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'kermesse_signups_slot_id_fkey'
+            columns: ['slot_id']
+            referencedRelation: 'kermesse_slots'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      kermesse_user_roles: {
+        Row: {
+          id: string
+          user_id: string
+          role: 'admin' | 'volunteer'
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          role: 'admin' | 'volunteer'
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          role?: 'admin' | 'volunteer'
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      kermesse_slot_fill_rate: {
+        Row: {
+          slot_id: string | null
+          stand_id: string | null
+          start_time: string | null
+          end_time: string | null
+          max_volunteers: number | null
+          current_count: number | null
+          remaining: number | null
+          is_full: boolean | null
+        }
+        Relationships: []
+      }
+    }
+    Functions: {
+      kermesse_bootstrap_admin: {
+        Args: { admin_email: string }
+        Returns: boolean
+      }
+      kermesse_ensure_volunteer_role: {
+        Args: Record<string, never>
+        Returns: string
+      }
+      kermesse_admin_signup_details: {
+        Args: { p_event_id: string }
+        Returns: {
+          signup_id: string
+          created_at: string
+          user_id: string
+          email: string | null
+          first_name: string | null
+          last_name: string | null
+          stand_id: string
+          stand_name: string
+          slot_id: string
+          start_time: string
+          end_time: string
+        }[]
+      }
+    }
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
+  }
+}
+
+// Helpers de lignes — raccourcis utilisés dans l'app.
+type PublicSchema = Database['public']
+
+export type Tables<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Row']
+export type TablesInsert<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Insert']
+export type TablesUpdate<T extends keyof PublicSchema['Tables']> =
+  PublicSchema['Tables'][T]['Update']
+export type Views<T extends keyof PublicSchema['Views']> =
+  PublicSchema['Views'][T]['Row']
