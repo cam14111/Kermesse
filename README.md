@@ -100,7 +100,7 @@ pnpm supabase gen types typescript --project-id <project-id> \
 | `kermesse_slots` | Créneaux horaires d'un stand (capacité `max_volunteers`) |
 | `kermesse_signups` | Inscriptions bénévoles (UNIQUE par créneau + utilisateur) |
 | `kermesse_user_roles` | Rôle applicatif (`admin` / `volunteer`) |
-| `kermesse_slot_fill_rate` (vue) | Taux de remplissage par créneau |
+| `kermesse_slot_fill_rate()` (RPC) | Taux de remplissage par créneau (compteurs globaux) |
 | `kermesse_check_slot_capacity()` (trigger) | Empêche le dépassement de capacité (atomique) |
 | `kermesse_bootstrap_admin()` (RPC) | Promeut le premier admin (idempotent) |
 | `kermesse_ensure_volunteer_role()` (RPC) | Attribue le rôle bénévole au nouvel utilisateur |

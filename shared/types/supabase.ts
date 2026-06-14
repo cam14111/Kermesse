@@ -211,22 +211,21 @@ export interface Database {
         Relationships: []
       }
     }
-    Views: {
-      kermesse_slot_fill_rate: {
-        Row: {
-          slot_id: string | null
-          stand_id: string | null
-          start_time: string | null
-          end_time: string | null
-          max_volunteers: number | null
-          current_count: number | null
-          remaining: number | null
-          is_full: boolean | null
-        }
-        Relationships: []
-      }
-    }
+    Views: Record<string, never>
     Functions: {
+      kermesse_slot_fill_rate: {
+        Args: Record<string, never>
+        Returns: {
+          slot_id: string
+          stand_id: string
+          start_time: string
+          end_time: string
+          max_volunteers: number
+          current_count: number
+          remaining: number
+          is_full: boolean
+        }[]
+      }
       kermesse_bootstrap_admin: {
         Args: { admin_email: string }
         Returns: boolean

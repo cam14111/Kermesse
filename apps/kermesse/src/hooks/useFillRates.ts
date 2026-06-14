@@ -10,7 +10,7 @@ interface UseFillRatesResult {
 }
 
 // Taux de remplissage de tous les créneaux, indexés par slot_id.
-// Lecture de la vue kermesse_slot_fill_rate (compteurs globaux, sans données perso).
+// Appel de la fonction RPC kermesse_slot_fill_rate (compteurs globaux, sans données perso).
 export function useFillRates(): UseFillRatesResult {
   const [fillRates, setFillRates] = useState<Record<string, FillRate>>({})
   const [loading, setLoading] = useState(true)
@@ -19,9 +19,7 @@ export function useFillRates(): UseFillRatesResult {
   const fetchFillRates = useCallback(async (): Promise<void> => {
     setLoading(true)
     setError(null)
-    const { data, error: err } = await supabase
-      .from('kermesse_slot_fill_rate')
-      .select('*')
+    const { data, error: err } = await supabase.rpc('kermesse_slot_fill_rate')
 
     if (err) {
       setError(err.message)
