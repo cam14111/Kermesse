@@ -1,0 +1,108 @@
+import { useCallback, useEffect, useState } from 'react'
+import { supabase } from '@agpe/shared/supabase-client'
+
+// Inscription enrichie de l'utilisateur courant (créneau + stand + événement).
+export interface MySignup {
+  id: string
+  slotId: string
+  createdAt: string | null
+  startTime: string
+  endTime: string
+  standName: string
+  standEmoji: string | null
+  eventName: string
+  eventDate: string
+}
+
+interface UseMySignupsResult {
+  signups: MySignup[]
+  signedUpSlotIds: Set<string>
+  loading: boolean
+  error: string | null
+  refetch: () => void
+}
+
+interface RawSignupRow {
+  id: string
+  slot_id: string
+  created_at: string | null
+  kermesse_slots: {
+    start_time: string
+    end_time: string
+    kermesse_stands: {
+      name: string
+      emoji: string | null
+      kermesse_events: { name: string; date: string } | null
+    } | null
+  } | null
+}
+
+// Récupère les inscriptions de l'utilisateur, regroupables par stand côté UI.
+export function useMySignups(userId: string | null): UseMySignupsResult {
+  const [signups, setSignups] = useState<MySignup[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchSignups = useCallback(async (): Promise<void> => {
+    if (!userId) {
+      setSignups([])
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    setError(null)
+    const { data, error: err } = await supabase
+      .from('kermesse_signups')
+      .select(
+        `id, slot_id, created_at,
+         kermesse_slots (
+           start_time, end_time,
+           kermesse_stands (
+             name, emoji,
+             kermesse_events ( name, date )
+           )
+         )`,
+      )
+      .eq('user_id', userId)
+
+    if (err) {
+      setError(err.message)
+      setSignups([])
+      setLoading(false)
+      return
+    }
+
+    const rows = (data ?? []) as unknown as RawSignupRow[]
+    const mapped: MySignup[] = rows.map((row) => {
+      const slot = row.kermesse_slots
+      const stand = slot?.kermesse_stands
+      const event = stand?.kermesse_events
+      return {
+        id: row.id,
+        slotId: row.slot_id,
+        createdAt: row.created_at,
+        startTime: slot?.start_time ?? '',
+        endTime: slot?.end_time ?? '',
+        standName: stand?.name ?? 'Stand',
+        standEmoji: stand?.emoji ?? null,
+        eventName: event?.name ?? '',
+        eventDate: event?.date ?? '',
+      }
+    })
+    mapped.sort(
+      (a, b) =>
+        a.standName.localeCompare(b.standName) ||
+        a.startTime.localeCompare(b.startTime),
+    )
+    setSignups(mapped)
+    setLoading(false)
+  }, [userId])
+
+  useEffect(() => {
+    void fetchSignups()
+  }, [fetchSignups])
+
+  const signedUpSlotIds = new Set(signups.map((s) => s.slotId))
+
+  return { signups, signedUpSlotIds, loading, error, refetch: fetchSignups }
+}
